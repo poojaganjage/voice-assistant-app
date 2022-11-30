@@ -1,25 +1,53 @@
-import logo from './logo.svg';
+import {useEffect} from 'react';
+import SpeechRecognition, {useSpeechRecognition} from 'react-speech-recognition';
 import './App.css';
 
 function App() {
+  const commands = [
+    {
+      command: 'reset',
+      callback: ({resetTranscript}) => resetTranscript()
+    },
+    {
+      command: 'clear',
+      callback: ({resetTranscript}) => resetTranscript()
+    },
+    {
+      command: 'open *',
+      callback: (site) => window.open('http://' + site)
+    },
+    {
+      command: 'increase text size',
+      callback: () => document.getElementById('content').style.fontSize = '25px'
+    },
+    {
+      command: 'decrease text size',
+      callback: () => document.getElementById('content').style.fontSize = '15px'
+    },
+    {
+      command: 'change text colour to *',
+      callback: (color1) => document.getElementById('content').style.color = color1
+    }
+  ];
+
+  useEffect(() => {
+    SpeechRecognition.startListening({continuous: true, language: 'en-IN'});
+  }, []);
+
+  const {transcript, browserSupportsSpeechRecognition} = useSpeechRecognition({commands});
+  
+  if(!browserSupportsSpeechRecognition) {
+    return 'Oops!! Browser does not support the speech recognition';
+  }
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='container'>
+      <div className='nav'>
+        <h2>Please Speak Something to write</h2>
+      </div>
+      <div id='content'>
+        {transcript}
+      </div>
     </div>
   );
 }
-
 export default App;
